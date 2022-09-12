@@ -8,19 +8,56 @@
   </head>
   <body>
     <script>
-      const user = { name: "zhangsan" };
+      // const user = { name: "zhangsan" };
 
-      Object.defineProperty(user, "age", {
-        get() {
-          return 18;
-        },
-        set(value) {
-          console.log(value);
-          //   this.age = value;
-        },
+      // Object.defineProperty(user, "age", {
+      //   get() {
+      //     return 18;
+      //   },
+      //   set(value) {
+      //     console.log(value);
+      //     //   this.age = value;
+      //   },
+      // });
+      // user.age = 20;
+      // console.log(user.age);
+
+      // configurable
+      const arr = [1, 2, 3, 4];
+
+      const obj = {
+        a: "aa",
+        b: "bb",
+        c: "cc",
+      };
+      Object.defineProperty(arr, "0", {
+        configurable: false,
+        writable: false,
+        enumerable: false,
+        value: "staic",
       });
-      user.age = 20;
-      console.log(user.age);
+      // arr[0] = "aaaaaa";
+      const keys = Object.values(arr);
+      console.log(keys);
+      // const arr1 = [...arr];
+      // arr1[0] = "aaaa";
+      // console.log(arr1);
+      // for (let v in arr) {
+      //   console.log(v);
+      // }
+      // Object.defineProperty(obj, "a", {
+      //   value: "bbbb",
+      //   // enumerable: false,
+      //   writable: true,
+      // });
+      // const obj1 = { ...obj };
+
+      // for (let i in obj) {
+      //   console.log(i);
+      // }
+      // obj.a = "qqq";
+      // console.log(obj, obj.a);
+      // console.log(obj1);
     </script>
   </body>
 </html>

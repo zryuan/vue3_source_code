@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Map、weakMap</title>
+  </head>
+  <body>
+    <script>
+      // js中默认会对对象进行排序
+      // 如果对象索引是数字，会被提前，多个数字按照从小到大排序
+      // 非数字则不进行处理，按插入顺序排序
+      const obj = {
+        2: "222",
+        c: "ccc",
+        4: "444",
+        1: "111",
+        3: "333",
+        a: "aaa",
+        b: "bbb",
+      };
+
+      const obj1 = {
+        2: "222",
+        c: "ccc",
+        4: "444",
+        1: "111",
+        3: "333",
+        a: "aaa",
+        b: "bbb",
+      };
+
+      for (let i in obj) {
+        console.log(i);
+      }
+      //   console.log(obj);
+      // map 是es6新增的一个数据类型，主要表示一种映射关系
+      // map 对象存储键值对，并且能够记住key的原始插入顺序，key和value可以为任意值，可以看map对象的结构
+      // Map 是一个构造函数，返沪一个可迭代对象，结构类似数组
+      /*
+        {
+            0: {
+                key: xxxx,
+                value: xxxx
+            },
+
+            size: xxxx
+        }
+      */
+      const m = new Map();
+
+      m.set(obj, "zhangsan");
+
+      console.log(m);
+
+      //   console.log(null === false);
+    </script>
+  </body>
+</html>
