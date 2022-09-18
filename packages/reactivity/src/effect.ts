@@ -19,7 +19,9 @@ class ReactiveEffect {
     active = true; // 判断当前effect实例是否激活状态，激活状态则进行依赖收集否则不进行依赖收集
     parent = null; // 表示当前effect实例的父effect实例
     deps = []; // 存储当前effect被那些那些属性依赖收集，方便进行依赖删除
-    constructor(public fn){}
+    //scheduler 允许用户自定义当回调内响应式数据发生变化后行为，run 是默认行为，
+    //当定义scheduler函数，则不会走默认的run函数
+    constructor(public fn,public scheduler){}
 
     run(){
         if(!this.active) return this.fn(); // 不激活直接执行函数不进行依赖搜集；
@@ -48,12 +50,12 @@ class ReactiveEffect {
 
 
 // effect 副作用函数
-// 接收一个回调作为参数
-// 当回调函数所依赖的响应式数据发生变化，会重新执行函数
+// 接收两个参数，fn: 回调函数 options：配置选项对象
+// 当回调函数所依赖的响应式数据发生变化，如果options对象定义了scheduler函数，会执行scheduler函数，否则默认会重新执行回调函数
 // 首次会执行一次函数，访问响应式数据，进行依赖收集
 // 在实际使用中effect是可以嵌套使用的
-export function effect(fn){
-    const _effect = new ReactiveEffect(fn);
+export function effect(fn,options:any){
+    const _effect = new ReactiveEffect(fn,options.scheduler);
 
     _effect.run();
 
@@ -126,7 +128,11 @@ export function trigger(target,type,key,value,oldValue){
                     state.age = 20;
                 }, 1500);
              */
-            if(effect !== activeEffetc) effect.run();
+            if(effect !== activeEffetc){
+                // 如果存在scheduler则执行scheduler，否则执行默认行为run
+                if(effect.scheduler) return effect.scheduler()
+                effect.run();
+            } 
         })
     }
 }
