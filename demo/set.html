@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Set</title>
+  </head>
+  <body>
+    <script>
+      // set 的forEach方法没有对set数据进行拷贝，所以在set进行循环时添加数据（导致死循环），删除数据都是对原数据进行操作
+      // set中对同一个元素进行删除和添加操作在同一个循环当中，也会死循环
+      //   const s = new Set(["a"]);
+      //   s.forEach((item) => {
+      //     console.log(s);
+      //     s.delete("a");
+      //     s.add("a");
+      //   });
+
+      const arr = [1];
+      // 数组对forEach方法进行了优化，forEach会对数组进行深拷贝，所以在forEach中怎么对原数组进行操作，都不会影响循环
+      //   arr.forEach((item) => {
+      //     arr.push(item);
+      //     console.log(arr);
+      //   });
+      //   for (let i = 0; i < arr.length; i++) {
+      //     console.log(i, arr);
+      //     arr.pop();
+      //     arr.push(2);
+      //   }
+    </script>
+  </body>
+</html>

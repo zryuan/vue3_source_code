@@ -1,5 +1,20 @@
-
+// 当前活动的effect实例，表示当前正在run的effect实例
 export let activeEffetc = undefined;
+
+// 清除effect实例在属性中的依赖，并把effect实例的deps清空
+// 主要作用是避免在effect函数中存在分支逻辑，在切换分支后，需要删除不需要属性的依赖，避免该属性发生变化后，导致effect函数重新执行
+// 分支结构 this.flag ? this.name : this.age 所以需要先清除依赖，在重新收集依赖
+function cleanupEffect(effect){
+    const { deps } = effect;
+    // effects 对应属性的sets，需要先从对应属性的sets中删除当前effect实例
+    deps.forEach(effects => {
+        effects.delete(effect);
+    });
+    // 在清空deps
+    effect.deps.length = 0;
+}
+
+// 用于创建effect实例的类，实现数据依赖收集
 class ReactiveEffect {
     active = true; // 判断当前effect实例是否激活状态，激活状态则进行依赖收集否则不进行依赖收集
     parent = null; // 表示当前effect实例的父effect实例
@@ -13,6 +28,9 @@ class ReactiveEffect {
             // 因为effect函数可以嵌套使用，在生成effect实例并进行依赖收集，需要保留上一级effect实例，以便当前effect实例依赖收集完成后，上一级effect实例可以重新进行依赖收集
             this.parent = activeEffetc; 
             activeEffetc = this;
+            // 在执行fn之前，可以将当前effect实例作为fn中响应式数据依赖进行清除。
+            // 之后在执行fn函数重新进行依赖收集
+            cleanupEffect(this);
             return this.fn();
         }finally{
             activeEffetc = this.parent;
@@ -76,23 +94,28 @@ export function trigger(target,type,key,value,oldValue){
     const depsMap = targetMap.get(target);
     if(!depsMap) return;
 
-    const effects = depsMap.get(key);
-    // 如果相应属性上存在effect，则重新执行effect
-    effects && effects.forEach(effect => {
-        // 因为可能在当前effect相关联的回调函数中存在某个响应式数据发生修改，修改的属性与当前的effect相同，则会陷入死循环
-        // 加上effect !== activeEffetc 判断条件则相关联的回调只会执行一次
-        /**
-         * effect(() => {
-         *      state.age = Math.random(); 这句会导致死循环
-                const app = document.getElementById("app");
-
-                app.innerHTML = `name: ${state.name}; age: ${state.age}`;
-            });
-
-            setTimeout(() => {
-                state.age = 20;
-            }, 1500);
-         */
-        if(effect !== activeEffetc) effect.run();
-    })
+    let effects = depsMap.get(key);
+    if(effects){
+        // 因为 在set数据循环中对同一个元素进行添加删除会导致死循环，所以需要对原set进行深拷贝
+        // 这样循环的是拷贝set，修改的是原set，互不影响
+        effects = new Set([...effects]);
+        // 如果相应属性上存在effect，则重新执行effect
+        effects.forEach(effect => {
+            // 因为可能在当前effect相关联的回调函数中存在某个响应式数据发生修改，修改的属性与当前的effect相同，则会陷入死循环
+            // 加上effect !== activeEffetc 判断条件则相关联的回调只会执行一次
+            /**
+             * effect(() => {
+             *      state.age = Math.random(); 这句会导致死循环
+                    const app = document.getElementById("app");
+    
+                    app.innerHTML = `name: ${state.name}; age: ${state.age}`;
+                });
+    
+                setTimeout(() => {
+                    state.age = 20;
+                }, 1500);
+             */
+            if(effect !== activeEffetc) effect.run();
+        })
+    }
 }
