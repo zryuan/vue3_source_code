@@ -37,6 +37,13 @@ class ReactiveEffect {
             this.parent = null;
         }
     }
+    // 使当前effect实例变成非响应式
+    stop(){
+        // 将efffect实例状态变更为active
+        this.active = false;
+        // 清除当前effect实例的属性依赖
+        cleanupEffect(this);
+    }
 }
 
 
@@ -49,6 +56,10 @@ export function effect(fn){
     const _effect = new ReactiveEffect(fn);
 
     _effect.run();
+
+    const runner:any = _effect.run.bind(_effect);
+    runner.effect = _effect;
+    return runner;
 }
 
 
